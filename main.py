@@ -3,25 +3,28 @@ from window import Window
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
-
-filetypes = (
-    # ('pdf file', '*.pdf'),
-    # ('text files', '*.txt'),
-)
+import PyPDF2
 
 
 def open_file():
     try:
-        with open(filedialog.askopenfilename(filetypes=[('text files', '*.txt')])) as file:
-            language = 'en'
-            try:
-                gTTS(text=str(file.readlines()), lang=language, slow=False).save("TTS.mp3")
-                messagebox.showinfo(title='Completed', message='Your audio file has been saved as TTS')
-            except:
-                messagebox.showerror(title="undefined character", message='Please enter file that only contains text')
+        with open(filedialog.askopenfilename(filetypes=[('pdf file', '*.pdf'), ('txt file', '*.txt')]), 'rb') as file:
+            if str(file.name)[-3:].lower() == 'pdf':
+                reader = PyPDF2.PdfFileReader(file)
+                page_obj = reader.getPage(0)
+                text = page_obj.extractText()
+            else:
+                text = file.readlines()
+
+        language = 'en'
+        gTTS(text=str(text), lang=language, slow=False).save("TTS.mp3")
+        messagebox.showinfo(title='Completed', message='Your audio file has been saved as TTS')
+        # except:
+        #     messagebox.showerror(title="undefined character", message='Please enter file that only contains text')
 
     except:
         pass
+
 
 window = Window(height=400, width=600)
 
